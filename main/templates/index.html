@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="section">
+		<div class="container">
+			<div class="row full-height justify-content-center">
+				<div class="col-12 text-center align-self-center py-5">
+					<div class="section pb-5 pt-5 pt-sm-2 text-center">
+						<span class="mb-0 pb-3"> <br> </br> </span>
+			          	<input class="checkbox" type="checkbox" id="reg-log" name="reg-log"/>
+			          	<label for="reg-log"></label>
+						<div class="card-3d-wrap">
+							<div class="card-3d-wrapper">
+								<div class="card-front">
+									<div class="center-wrap">
+										<div class="section text-center">
+											<h4 class="mb-4 pb-3">Network File Transfer Software</h4>
+											<form method="POST" action = "{% url 'index' %}" enctype = "multipart/form-data">
+												{% csrf_token %}
+
+												<div class="form-group">
+													<input type="text" name="ReceiverIP" class="form-style" placeholder="ReceiverIP"  autocomplete="off">
+												</div>	
+												
+												<div class="form-group mt-2">
+													<input type="text" name="Message" class="form-style" placeholder="Message" autocomplete="off">
+												</div>
+												
+												<div class="form-group mt-3">
+													<input type="file" name="fileupload" class="form-style" accept="*/*">
+													
+													{% comment %} <i class="input-icon uil uil-at"></i> {% endcomment %}
+												</div>	
+												
+												<button type = "submit" <a href="#" class="btn mt-4">Send</a></button>
+												
+                            				{% comment %} <p class="mb-0 mt-4 text-center"><a href="#0" class="link">Forgot your password?</a></p> {% endcomment %}
+											</form>
+										</div>
+			      					</div>
+			      				</div>
+								<div class="card-back">
+									<div class="center-wrap">
+										<div class="section text-center">
+											<h4 class="mb-4 pb-3">Device Network Information</h4>
+                                            <h3>IP Address: {{ client_ip }}</h3>
+											<h3>Server IP: {{ server_ip }}</h3>
+											<h3>Transfer Port: {{ port }}</h3>
+											{% comment %} <div class="form-group">
+												<input type="text" name="logname" class="form-style" placeholder="Your Full Name" id="logname" autocomplete="off">
+												<i class="input-icon uil uil-user"></i>
+											</div>	
+											<div class="form-group mt-2">
+												<input type="email" name="logemail" class="form-style" placeholder="Your Email" id="logemail" autocomplete="off">
+												<i class="input-icon uil uil-at"></i>
+											</div>	
+											<div class="form-group mt-2">
+												<input type="password" name="logpass" class="form-style" placeholder="Your Password" id="logpass" autocomplete="off">
+												<i class="input-icon uil uil-lock-alt"></i>
+											</div> {% endcomment %}
+											{% comment %} <a href="#" class="btn mt-4">submit</a> {% endcomment %}
+				      					</div>
+			      					</div>
+			      				</div>
+			      			</div>
+			      		</div>
+			      	</div>
+		      	</div>
+	      	</div>
+	    </div>
+	</div>
+{% endblock %}

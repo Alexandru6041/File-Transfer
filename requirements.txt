@@ -1,0 +1,7 @@
+asgiref>=3.8.1
+Django>=5.1.4
+netifaces2>=0.0.22
+pip>=24.3.1
+sqlparse>=0.5.3
+argon2-cffi>=21.1.0
+pycrypto>=2.6.1
