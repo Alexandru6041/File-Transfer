@@ -33,8 +33,13 @@
 												</div>	
 												
 												<button type = "submit" <a href="#" class="btn mt-4">Send</a></button>
+
+												{% if error %}
+													<div class="alert alert-danger" role="alert">
+														{{ error }}
+													</div>
+												{% endif %}
 												
-                            				{% comment %} <p class="mb-0 mt-4 text-center"><a href="#0" class="link">Forgot your password?</a></p> {% endcomment %}
 											</form>
 										</div>
 			      					</div>
@@ -46,22 +51,13 @@
                                             <h3>IP Address: {{ client_ip }}</h3>
 											<h3>Server IP: {{ server_ip }}</h3>
 											<h3>Transfer Port: {{ port }}</h3>
-											{% comment %} <div class="form-group">
-												<input type="text" name="logname" class="form-style" placeholder="Your Full Name" id="logname" autocomplete="off">
-												<i class="input-icon uil uil-user"></i>
-											</div>	
-											<div class="form-group mt-2">
-												<input type="email" name="logemail" class="form-style" placeholder="Your Email" id="logemail" autocomplete="off">
-												<i class="input-icon uil uil-at"></i>
-											</div>	
-											<div class="form-group mt-2">
-												<input type="password" name="logpass" class="form-style" placeholder="Your Password" id="logpass" autocomplete="off">
-												<i class="input-icon uil uil-lock-alt"></i>
-											</div> {% endcomment %}
-											{% comment %} <a href="#" class="btn mt-4">submit</a> {% endcomment %}
 				      					</div>
 			      					</div>
 			      				</div>
+			      			</div>
+			      		</div>
+			      	</div>
+		      	</div>
 			      			</div>
 			      		</div>
 			      	</div>

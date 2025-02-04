@@ -28,7 +28,6 @@ def index(request):
     thread.start()
     
     if(utils.checkClient() == False):
-        logging.info(f"Client IP is not on the same network as server. Denying access. IP: {client_ip}")
         return render(request, "http500.html", {"ip": client_ip}, status = 500)
     else:
             
@@ -36,8 +35,10 @@ def index(request):
             file = request.FILES.get('fileupload')
             ip_to_send = request.POST['ReceiverIP']
             if utils.checkClient(ip_to_send) == False:
+                error = f"Could not esablish a connection with the requested IP: {ip_to_send}"
                 return render(request, "index.html", {"client_ip": client_ip, "server_ip": server_ip, "port": port, "error": error})
             else:
+                error = None
                 token = file.name + '_' + ip_to_send
                 Chiper = AESCipher
                 Hasher = MyHasher()
