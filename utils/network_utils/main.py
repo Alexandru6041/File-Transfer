@@ -1,8 +1,10 @@
 import socket, fcntl, struct, sys, netifaces
 from django.conf import settings
 from scapy.all import Ether, srp1, ARP
+from scapy.error import Scapy_Exception
 import sqlite3
 import logging
+import os
 
 class _Operations(object):
     
@@ -121,24 +123,26 @@ class NetworkUtils(object):
             Network_Address = _Op_Utils.ToIP(ServerAND)
             ClientAND = _Op_Utils.AND(Client_Binary, Subnet_Binary)
             
-            if(_Op_Utils.ToIP(ClientAND) == Network_Address):
-                print(f"Checking IP: {IP}")
-                arp_request = ARP(pdst=IP)
-                ether = Ether(dst="ff:ff:ff:ff:ff:ff")
-                packet = ether / arp_request
+            try:
+                if(_Op_Utils.ToIP(ClientAND) == Network_Address):
+                    print(f"Checking IP: {IP}")
+                    arp_request = ARP(pdst=IP)
+                    ether = Ether(dst="ff:ff:ff:ff:ff:ff")
+                    packet = ether / arp_request
 
-                response = srp1(packet, timeout=2, verbose=False)
-                
-                if response:
-                    logging.info(f"IP: {IP} is on the server and running. Received response from {IP}: {response.psrc}")
-                    return True
-            else:
-                logging.warning(f"Client IP is not on the same network as server. Aborting all operations. Denying access. IP: {IP}")
-                return False
+                    response = srp1(packet, timeout=2, verbose=False)
+                    
+                    if response:
+                        logging.info(f"IP: {IP} is on the server and running. Received response from {IP}: {response.psrc}")
+                        return True
+                else:
+                    logging.warning(f"Client IP is not on the same network as server. Aborting all operations. Denying access. IP: {IP}")
+                    return False
+            except Scapy_Exception:
+                logging.critical(f"Run the server with admin privileges or 'sudo' as it requires root access to run the ARP request. IP: {IP}" )
         else:
             logging.warning(f"Subnet {self._Subnet} not matching. Aborting all operations. Denying access. IP: {IP}")
             return False
-        return False
             
     
     def checkDatabase(self):
@@ -156,8 +160,15 @@ class NetworkUtils(object):
             Network_Address = _Op_Utils.ToIP(ServerAND)
             ClientAND = _Op_Utils.AND(Client_Binary, Subnet_Binary)
             if not (_Op_Utils.ToIP(ClientAND) == Network_Address):
+                file_name = row[2]
+                file_path = settings.MEDIA_URL + file_name
+                try:
+                    os.remove(file_path)
+                except FileNotFoundError:
+                    pass
                 cursor.execute("DELETE FROM main_fileunit WHERE server_ip = ?", (last_server_ip,))
                 connection.commit()
-                logging.warning("Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network.")
+                
+                logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_URL}")
         cursor.close()  
         connection.close()
