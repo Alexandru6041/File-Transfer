@@ -1,7 +1,8 @@
 import socket, fcntl, struct, sys, netifaces
 from django.conf import settings
-from scapy.all import Ether, srp1
-
+from scapy.all import Ether, srp1, ARP
+import sqlite3
+import logging
 
 class _Operations(object):
     
@@ -107,38 +108,56 @@ class NetworkUtils(object):
     def getServerIP():
         return _ServerData.getLocalIP()
 
-    def checkClient(self):
-        state = None
+    def checkClient(self, IP = None):
+        if IP is None:
+            IP = self.clientIP
+        
         _Op_Utils = _Operations()    
         if(_ServerData._confirmCIDR(self._Subnet) == True):
             Server_Binary = _Op_Utils.ToBinary(self._ServerLocalIP)
             Subnet_Binary = _Op_Utils.ToBinary(self._Subnet)
-            Client_Binary = _Op_Utils.ToBinary(self.clientIP)
+            Client_Binary = _Op_Utils.ToBinary(IP)
             ServerAND = _Op_Utils.AND(Server_Binary, Subnet_Binary)
             Network_Address = _Op_Utils.ToIP(ServerAND)
             ClientAND = _Op_Utils.AND(Client_Binary, Subnet_Binary)
-            print(Network_Address, self._Subnet)
+            
             if(_Op_Utils.ToIP(ClientAND) == Network_Address):
-                #TODO : Check if the client IP is on the same network as the server
-                pass
-                # print("[*] ", '{}'.format(self.clientIP), " Subnet Matches")
-                # command = ['nmap', '-p', '{}'.format(settings.HTTP_PORT), '{}'.format(self.clientIP)]
-                # result = subprocess.run(command, capture_output = True, text = True)
-                # print(result)
-                # output = result.stdout
-                # print(output)
-                # match = re.search(r'8000/tcp\s+(\w+)', output)
-                # if match:
-                #     state = match.group(1)
-                # print(state)    
-        pass #(TODO: Check if the client IP is on the same network as the server)
-    @staticmethod
-    def getPublicIP():
-        pass
+                print(f"Checking IP: {IP}")
+                arp_request = ARP(pdst=IP)
+                ether = Ether(dst="ff:ff:ff:ff:ff:ff")
+                packet = ether / arp_request
 
-    @staticmethod
-    def getMACAddr():
-        pass
-
-if __name__ == "__main__":
-    pass
+                response = srp1(packet, timeout=2, verbose=False)
+                
+                if response:
+                    logging.info(f"IP: {IP} is on the server and running. Received response from {IP}: {response.psrc}")
+                    return True
+            else:
+                logging.warning(f"Client IP is not on the same network as server. Aborting all operations. Denying access. IP: {IP}")
+                return False
+        else:
+            logging.warning(f"Subnet {self._Subnet} not matching. Aborting all operations. Denying access. IP: {IP}")
+            return False
+        return False
+            
+    
+    def checkDatabase(self):
+        _Op_Utils = _Operations()
+        connection  = sqlite3.connect(settings.DATABASES['default']['NAME'])
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM main_fileunit")
+        rows = cursor.fetchall()
+        for row in rows:
+            last_server_ip = row[4]
+            Server_Binary = _Op_Utils.ToBinary(self._ServerLocalIP)
+            Subnet_Binary = _Op_Utils.ToBinary(self._Subnet)
+            Client_Binary = _Op_Utils.ToBinary(last_server_ip)
+            ServerAND = _Op_Utils.AND(Server_Binary, Subnet_Binary)
+            Network_Address = _Op_Utils.ToIP(ServerAND)
+            ClientAND = _Op_Utils.AND(Client_Binary, Subnet_Binary)
+            if not (_Op_Utils.ToIP(ClientAND) == Network_Address):
+                cursor.execute("DELETE FROM main_fileunit WHERE server_ip = ?", (last_server_ip,))
+                connection.commit()
+                logging.warning("Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network.")
+        cursor.close()  
+        connection.close()
