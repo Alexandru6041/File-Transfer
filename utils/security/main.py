@@ -8,7 +8,6 @@ from Crypto.Util.Padding import pad, unpad
 import base64
 import os
 
-
 class MyHasher():
 
     algorithm = 'myhasher'
