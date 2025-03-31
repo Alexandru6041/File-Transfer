@@ -140,12 +140,14 @@ class NetworkUtils(object):
                     return False
             except Scapy_Exception:
                 logging.critical(f"Run the server with admin privileges or 'sudo' as it requires root access to run the ARP request. IP: {IP}" )
+                return False
         else:
             logging.warning(f"Subnet {self._Subnet} not matching. Aborting all operations. Denying access. IP: {IP}")
             return False
             
     
     def checkDatabase(self):
+        ok = False
         _Op_Utils = _Operations()
         connection  = sqlite3.connect(settings.DATABASES['default']['NAME'])
         cursor = connection.cursor()
@@ -160,6 +162,8 @@ class NetworkUtils(object):
             Network_Address = _Op_Utils.ToIP(ServerAND)
             ClientAND = _Op_Utils.AND(Client_Binary, Subnet_Binary)
             if not (_Op_Utils.ToIP(ClientAND) == Network_Address):
+                logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_URL}")
+            
                 file_name = row[2]
                 file_path = settings.MEDIA_URL + file_name
                 try:
@@ -169,6 +173,5 @@ class NetworkUtils(object):
                 cursor.execute("DELETE FROM main_fileunit WHERE server_ip = ?", (last_server_ip,))
                 connection.commit()
                 
-                logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_URL}")
         cursor.close()  
         connection.close()
