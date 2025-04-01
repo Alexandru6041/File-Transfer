@@ -126,8 +126,8 @@ class NetworkUtils(object):
             try:
                 if(_Op_Utils.ToIP(ClientAND) == Network_Address):
                     print(f"Checking IP: {IP}")
-                    arp_request = ARP(pdst=IP)
-                    ether = Ether(dst="ff:ff:ff:ff:ff:ff")
+                    arp_request = ARP(pdst = IP)
+                    ether = Ether(dst = "ff:ff:ff:ff:ff:ff")
                     packet = ether / arp_request
 
                     response = srp1(packet, timeout=2, verbose=False)
@@ -153,6 +153,7 @@ class NetworkUtils(object):
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM main_fileunit")
         rows = cursor.fetchall()
+        ok_warning = 0
         for row in rows:
             last_server_ip = row[4]
             Server_Binary = _Op_Utils.ToBinary(self._ServerLocalIP)
@@ -162,8 +163,10 @@ class NetworkUtils(object):
             Network_Address = _Op_Utils.ToIP(ServerAND)
             ClientAND = _Op_Utils.AND(Client_Binary, Subnet_Binary)
             if not (_Op_Utils.ToIP(ClientAND) == Network_Address):
-                logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_URL}")
-            
+                if(ok_warning == 0):
+                    logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_URL}")
+                    ok_warning = 1
+
                 file_name = row[2]
                 file_path = settings.MEDIA_URL + file_name
                 try:
@@ -172,6 +175,15 @@ class NetworkUtils(object):
                     pass
                 cursor.execute("DELETE FROM main_fileunit WHERE server_ip = ?", (last_server_ip,))
                 connection.commit()
-                
+            else:
+                try:
+                    file_name = row[2]
+                    f = open(settings.MEDIA_URL + file_name, 'r')
+                    
+                except FileNotFoundError:
+                    logging.warning(f"File {file_name} not found in media folder. Deleting record from database.")
+                    cursor.execute("DELETE FROM main_fileunit WHERE File = ?", (file_name, ))
+                    connection.commit()
+                    
         cursor.close()  
         connection.close()
