@@ -7,6 +7,8 @@ from . import views
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("download/<str:filename>", views.download_file, name = "download_file"),
 ]
 
-urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_ROOT)
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
