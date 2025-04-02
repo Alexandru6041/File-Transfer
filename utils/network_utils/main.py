@@ -57,8 +57,10 @@ class _ServerData(object):
         for interface in netifaces.interfaces():
             addr = netifaces.ifaddresses(interface)
             if netifaces.AF_INET in addr:
-                subnet_mask = addr[netifaces.AF_INET][0]['mask']
-        
+                os_type = _ServerData.getOS()
+                key = 'mask' if os_type in ['darwin', 'linux'] else 'netmask'
+                subnet_mask = addr[netifaces.AF_INET][0][key]
+                
         return subnet_mask
 
     @staticmethod
@@ -68,7 +70,7 @@ class _ServerData(object):
             case 'win32' | 'cygwin' | 'win64':
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 try:
-                    sock.connect(settings.DEFAULTDNS, settings.HTTP_PORT)                    
+                    sock.connect((settings.DEFAULTDNS, settings.HTTP_PORT))
                     ip = sock.getsockname()[0]
                 finally:
                     sock.close()
@@ -170,7 +172,7 @@ class NetworkUtils(object):
                 file_path = settings.MEDIA_URL + file_name
                 try:
                     os.remove(file_path)
-                except FileNotFoundError:
+                except OSError:
                     pass
                 cursor.execute("DELETE FROM main_fileunit WHERE server_ip = ?", (last_server_ip,))
                 connection.commit()
@@ -179,7 +181,7 @@ class NetworkUtils(object):
                     file_name = row[2]
                     f = open(settings.MEDIA_URL + file_name, 'r')
                     
-                except FileNotFoundError:
+                except OSError:
                     logging.warning(f"File {file_name} not found in media folder. Deleting record from database.")
                     cursor.execute("DELETE FROM main_fileunit WHERE File = ?", (file_name, ))
                     connection.commit()
