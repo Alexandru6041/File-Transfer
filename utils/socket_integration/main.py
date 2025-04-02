@@ -2,7 +2,6 @@ import socket
 import os
 import shutil
 from ..network_utils.main import NetworkUtils
-from django.http import HttpResponse
 from django.conf import settings
 
 

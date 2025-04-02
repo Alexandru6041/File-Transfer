@@ -10,7 +10,6 @@ from utils.security.main import AESCipher, MyHasher
 import threading
 import sqlite3
 import logging
-import mimetypes
 import os
 
 # Create your views here.

@@ -1,4 +1,4 @@
-import socket, fcntl, struct, sys, netifaces
+import socket, sys, netifaces
 from django.conf import settings
 from scapy.all import Ether, srp1, ARP
 from scapy.error import Scapy_Exception
@@ -147,7 +147,6 @@ class NetworkUtils(object):
             
     
     def checkDatabase(self):
-        ok = False
         _Op_Utils = _Operations()
         connection  = sqlite3.connect(settings.DATABASES['default']['NAME'])
         cursor = connection.cursor()
