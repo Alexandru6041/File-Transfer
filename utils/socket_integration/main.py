@@ -1,9 +1,10 @@
+#Third-Party
 import socket
 import os
 import shutil
 from ..network_utils.main import NetworkUtils
-from django.conf import settings
 
+from django.conf import settings
 
 class Sockets(object):
     def __init__(self):
