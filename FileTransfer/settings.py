@@ -131,7 +131,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #DEFAULT VARIABLES
 DEFAULTDNS = '8.8.8.8'
-HTTP_PORT = 8000
+HTTP_PORT = 80
 TRANSFER_PORT = 1234
 MEDIA_URL = join(BASE_DIR, 'media/')
 LOG_URL = join(BASE_DIR, 'log/')
