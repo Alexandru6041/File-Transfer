@@ -75,9 +75,9 @@ def index(request):
                 token = file.name + '_' + ip_to_send
                 token = Hasher.encode(token)
                 token = Chiper.encrypt(str(token))
-                FileUnit(IP = ip_to_send, File = file.name, token = token, server_ip = server_ip).save()
                 try:
                     sock.send(file)
+                    FileUnit(IP = ip_to_send, File = file.name, token = token, server_ip = server_ip).save()
                 except OSError:
                     return redirect(index)
                 finally:
