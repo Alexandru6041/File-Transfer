@@ -25,11 +25,11 @@
 												
 												<div class="form-group mt-3">
 													<input type="file" name="fileupload" class="form-style" accept="*/*" required>
-													
 													{% comment %} <i class="input-icon uil uil-at"></i> {% endcomment %}
 												</div>	
 												
 												<button type = "submit" <a href="#" class="btn mt-4">Send</a></button>
+												<button class = "btn mt-4"><a href = "{% url 'refresh' %}"> Refresh </a></button>
 
 												{% if error %}
 													<div class="alert alert-danger" role="alert">
@@ -45,13 +45,13 @@
 									<div class="center-wrap">
 										<div class="section text-center">
 											<h4 class="mb-4 pb-3">Notifications</h4>
-                                        
-											<!-- TODO: MAKE NOTIFICATINONS FRONTEND -->
-											<ul class = "notifications">
-												{% for file_unit in download_files %}
-													<li class = "notification"> <a class = "link_notification" href = "{% url 'download_file' file_unit %}"> {{ file_unit }} </a></li>
-												{% endfor %}
-											</ul>
+											<div class = "notifications_container">
+												<ul class = "notifications">
+													{% for file_unit in download_files %}
+														<li class = "notification"> <a class = "link_notification" href = "{% url 'download_file' file_unit %}"> {{ file_unit }} </a></li>
+													{% endfor %}
+												</ul>
+											</div>
 										</div>
 			      					</div>
 			      				</div>
