@@ -29,6 +29,9 @@ def index(request):
     thread = threading.Thread(target=sock.receive)
     thread.start()
 
+    if(utils.checkClient() == False and client_ip == server_ip):
+        return redirect("admin/")
+    
     if(utils.checkClient() == False):
         return render(request, "http500.html", {"ip": client_ip}, status = 500)
     else:
@@ -104,3 +107,40 @@ def download_file(request, filename):
         response = HttpResponse(f.read(), content_type='application/octet-stream')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
+    
+def refresh(request):
+    Chiper = AESCipher
+    Hasher = MyHasher()
+    
+    client_ip = NetworkUtils().getLocalIP(request)
+    
+    connection = sqlite3.connect(settings.DATABASES['default']['NAME'])
+    cursor = connection.cursor()
+    
+    dataReceive = cursor.execute("SELECT * FROM main_fileunit WHERE IP = ?", (client_ip,)).fetchall()
+    
+    download_files = []
+    
+    for row in dataReceive:
+        encrypted_token = row[3]
+        file_name = row[2]
+        
+        decrypted_token = eval(Chiper.decrypt(encrypted_token))
+        
+        predicted_token = file_name + '_' + client_ip
+        if(MyHasher.verify(predicted_token, decrypted_token) == False):
+            logging.warning(f"Token verification failed for IP: {client_ip}. Denying access to the file. Deleting record from database.")
+            file_path = settings.MEDIA_URL + file_name
+            try:
+                os.remove(file_path)
+            except FileNotFoundError:   
+                pass
+            
+            cursor.execute("DELETE FROM main_fileunit WHERE File = ?", (file_name, ))
+            connection.commit()
+        else:
+            logging.info(f"Token verification succeeded for IP: {client_ip}. Sending file: {file_name}")
+            download_files.append(file_name)
+        
+    return render(request, "index.html", {"download_files": download_files})
+        

@@ -8,6 +8,7 @@ from . import views
 urlpatterns = [
     path("", views.index, name="index"),
     path("download/<str:filename>", views.download_file, name = "download_file"),
+    path("refresh_notifications/", views.refresh, name = "refresh"),
 ]
 
 
