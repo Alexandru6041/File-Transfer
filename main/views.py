@@ -10,6 +10,7 @@ from utils.security.main import AESCipher, MyHasher
 import threading
 import sqlite3
 import logging
+import math
 import os
 
 # Create your views here.
@@ -75,6 +76,31 @@ def index(request):
                 return render(request, "index.html", {"client_ip": client_ip, "server_ip": server_ip, "port": port, "error": error, "download_files": download_files})
             else:
                 error = None
+                cursor.execute("SELECT * FROM main_fileunit WHERE File = ?", (file.name, ))
+                connection.commit()
+                data = cursor.fetchall()
+                cntFile = 0
+                ok_multiple_Files = True
+                while(ok_multiple_Files == True):
+                    for row in data:                        
+                        if(ok_multiple_Files == True):
+                            if(cntFile == 0 and row[2] == file.name):
+                                cntFile += 1
+                                file.name = os.path.splitext(file.name)[0] + f'{cntFile}' + os.path.splitext(file.name)[1]
+                            elif(cntFile > 0 and row[2] == file.name):
+                                print("second file")
+                                cntFile += 1
+                                file.name = os.path.splitext(file.name)[0][:-(math.floor(math.log10(cntFile)) + 1)] + f'{cntFile}' + os.path.splitext(file.name)[1]
+                                print(file.name)
+                            cursor.execute("SELECT * FROM main_fileunit WHERE File = ?", (file.name, ))
+                            connection.commit()
+                            data = cursor.fetchall()
+                            print(data)
+                            if(data == []):
+                                ok_multiple_Files = False
+                            break
+                        else:
+                            break
                 token = file.name + '_' + ip_to_send
                 token = Hasher.encode(token)
                 token = Chiper.encrypt(str(token))
