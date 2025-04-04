@@ -130,7 +130,7 @@ class NetworkUtils(object):
                     ether = Ether(dst = "ff:ff:ff:ff:ff:ff")
                     packet = ether / arp_request
 
-                    response = srp1(packet, timeout=5, verbose=False)
+                    response = srp1(packet, timeout = settings.IP_CHECK_TIMEOUT, verbose = False)
                     
                     if response is not None: 
                         logging.info(f"IP: {IP} is on the server and running. Received response from {IP}: {response}")
@@ -182,6 +182,7 @@ class NetworkUtils(object):
                 try:
                     file_name = row[2]
                     f = open(settings.MEDIA_URL + file_name, 'r')
+                    f.close()
                     
                 except FileNotFoundError:
                     logging.warning(f"File {file_name} not found in media folder. Deleting record from database.")
