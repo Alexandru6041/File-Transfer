@@ -115,7 +115,7 @@ class NetworkUtils(object):
     def checkClient(self, IP = None):
         if IP is None:
             IP = self.clientIP
-        
+            
         _Op_Utils = _Operations()    
         if(_ServerData._confirmCIDR(self._Subnet) == True):
             Server_Binary = _Op_Utils.ToBinary(self._ServerLocalIP)
@@ -169,11 +169,11 @@ class NetworkUtils(object):
             ClientAND = _Op_Utils.AND(Client_Binary, Subnet_Binary)
             if not (_Op_Utils.ToIP(ClientAND) == Network_Address):
                 if(ok_warning == 0):
-                    logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_URL}")
+                    logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_ROOT}")
                     ok_warning = 1
 
                 file_name = row[2]
-                file_path = settings.MEDIA_URL + file_name
+                file_path = settings.MEDIA_ROOT + file_name
                 try:
                     os.remove(file_path)
                 except OSError:
@@ -183,7 +183,7 @@ class NetworkUtils(object):
             else:
                 try:
                     file_name = row[2]
-                    f = open(settings.MEDIA_URL + file_name, 'r')
+                    f = open(settings.MEDIA_ROOT + file_name, 'r')
                     f.close()
                     
                 except OSError:
