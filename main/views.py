@@ -29,8 +29,8 @@ def index(request):
     sock = Sockets()
     thread = threading.Thread(target=sock.receive)
     thread.start()
-
-    if(utils.checkClient() == False and client_ip == server_ip):
+    
+    if(client_ip == server_ip):
         return redirect("admin/")
     
     if(utils.checkClient() == False):
@@ -56,7 +56,7 @@ def index(request):
             predicted_token = file_name + '_' + client_ip
             if(MyHasher.verify(predicted_token, decrypted_token) == False):
                 logging.warning(f"Token verification failed for IP: {client_ip}. Denying access to the file. Deleting record from database.")
-                file_path = settings.MEDIA_URL + file_name
+                file_path = settings.MEDIA_ROOT + file_name
                 try:
                     os.remove(file_path)
                 except FileNotFoundError:   
@@ -81,26 +81,26 @@ def index(request):
                 data = cursor.fetchall()
                 cntFile = 0
                 ok_multiple_Files = True
-                while(ok_multiple_Files == True):
-                    for row in data:                        
-                        if(ok_multiple_Files == True):
-                            if(cntFile == 0 and row[2] == file.name):
-                                cntFile += 1
-                                file.name = os.path.splitext(file.name)[0] + f'{cntFile}' + os.path.splitext(file.name)[1]
-                            elif(cntFile > 0 and row[2] == file.name):
-                                print("second file")
-                                cntFile += 1
-                                file.name = os.path.splitext(file.name)[0][:-(math.floor(math.log10(cntFile)) + 1)] + f'{cntFile}' + os.path.splitext(file.name)[1]
-                                print(file.name)
-                            cursor.execute("SELECT * FROM main_fileunit WHERE File = ?", (file.name, ))
-                            connection.commit()
-                            data = cursor.fetchall()
-                            print(data)
-                            if(data == []):
-                                ok_multiple_Files = False
-                            break
-                        else:
-                            break
+                if(data != []):
+                    while(ok_multiple_Files == True):
+                        for row in data:                        
+                            if(ok_multiple_Files == True):
+                                if(cntFile == 0 and row[2] == file.name):
+                                    cntFile += 1
+                                    file.name = os.path.splitext(file.name)[0] + f'{cntFile}' + os.path.splitext(file.name)[1]
+                                elif(cntFile > 0 and row[2] == file.name):
+                                    cntFile += 1
+                                    file.name = os.path.splitext(file.name)[0][:-(math.floor(math.log10(cntFile)) + 1)] + f'{cntFile}' + os.path.splitext(file.name)[1]
+                                    print(file.name)
+                                cursor.execute("SELECT * FROM main_fileunit WHERE File = ?", (file.name, ))
+                                connection.commit()
+                                data = cursor.fetchall()
+                                print(data)
+                                if(data == []):
+                                    ok_multiple_Files = False
+                                break
+                            else:
+                                break
                 token = file.name + '_' + ip_to_send
                 token = Hasher.encode(token)
                 token = Chiper.encrypt(str(token))
@@ -117,7 +117,7 @@ def index(request):
 
 
 def download_file(request, filename):
-    file_path = os.path.join(settings.MEDIA_URL, filename)
+    file_path = os.path.join(settings.MEDIA_ROOT, filename)
 
     if not os.path.exists(file_path):
         connection  = sqlite3.connect(settings.DATABASES['default']['NAME'])
@@ -156,7 +156,7 @@ def refresh(request):
         predicted_token = file_name + '_' + client_ip
         if(MyHasher.verify(predicted_token, decrypted_token) == False):
             logging.warning(f"Token verification failed for IP: {client_ip}. Denying access to the file. Deleting record from database.")
-            file_path = settings.MEDIA_URL + file_name
+            file_path = settings.MEDIA_ROOT + file_name
             try:
                 os.remove(file_path)
             except FileNotFoundError:   
