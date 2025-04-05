@@ -12,7 +12,7 @@ class Sockets(object):
         self._SEPARATOR = "<SEPARATOR>"
         self.RECEIVER_HOST = NetworkUtils.getServerIP()
         self._TRANSFER_PORT = settings.TRANSFER_PORT
-        self.s = socket.socket()
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             
     def receive(self):
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -34,11 +34,12 @@ class Sockets(object):
         self.s.close()
         print(f"[+] File received: {filename} from {address} via port {self._TRANSFER_PORT}")
         file_path = os.path.join(settings.BASE_DIR, filename)
-        shutil.move(file_path, settings.MEDIA_URL)
+        shutil.move(file_path, settings.MEDIA_ROOT)
         
         Sockets().receive()
 
     def send(self, file):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         host = self.RECEIVER_HOST
         filesize = file.size
         self.s.connect((host, int(self._TRANSFER_PORT)))

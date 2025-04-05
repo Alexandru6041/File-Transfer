@@ -57,8 +57,10 @@ class _ServerData(object):
         for interface in netifaces.interfaces():
             addr = netifaces.ifaddresses(interface)
             if netifaces.AF_INET in addr:
-                subnet_mask = addr[netifaces.AF_INET][0]['mask']
-        
+                os_type = _ServerData.getOS()
+                key = 'mask' if os_type in ['darwin', 'linux'] else 'netmask'
+                subnet_mask = addr[netifaces.AF_INET][0][key]
+                
         return subnet_mask
 
     @staticmethod
@@ -68,7 +70,7 @@ class _ServerData(object):
             case 'win32' | 'cygwin' | 'win64':
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 try:
-                    sock.connect(settings.DEFAULTDNS, settings.HTTP_PORT)                    
+                    sock.connect((settings.DEFAULTDNS, settings.HTTP_PORT))
                     ip = sock.getsockname()[0]
                 finally:
                     sock.close()
@@ -113,7 +115,7 @@ class NetworkUtils(object):
     def checkClient(self, IP = None):
         if IP is None:
             IP = self.clientIP
-        
+            
         _Op_Utils = _Operations()    
         if(_ServerData._confirmCIDR(self._Subnet) == True):
             Server_Binary = _Op_Utils.ToBinary(self._ServerLocalIP)
@@ -167,24 +169,24 @@ class NetworkUtils(object):
             ClientAND = _Op_Utils.AND(Client_Binary, Subnet_Binary)
             if not (_Op_Utils.ToIP(ClientAND) == Network_Address):
                 if(ok_warning == 0):
-                    logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_URL}")
+                    logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_ROOT}")
                     ok_warning = 1
 
                 file_name = row[2]
-                file_path = settings.MEDIA_URL + file_name
+                file_path = settings.MEDIA_ROOT + file_name
                 try:
                     os.remove(file_path)
-                except FileNotFoundError:
+                except OSError:
                     pass
                 cursor.execute("DELETE FROM main_fileunit WHERE server_ip = ?", (last_server_ip,))
                 connection.commit()
             else:
                 try:
                     file_name = row[2]
-                    f = open(settings.MEDIA_URL + file_name, 'r')
+                    f = open(settings.MEDIA_ROOT + file_name, 'r')
                     f.close()
                     
-                except FileNotFoundError:
+                except OSError:
                     logging.warning(f"File {file_name} not found in media folder. Deleting record from database.")
                     cursor.execute("DELETE FROM main_fileunit WHERE File = ?", (file_name, ))
                     connection.commit()
