@@ -10,6 +10,7 @@ from utils.security.main import AESCipher, MyHasher
 import threading
 import sqlite3
 import logging
+import math
 import os
 
 # Create your views here.
@@ -29,6 +30,9 @@ def index(request):
     thread = threading.Thread(target=sock.receive)
     thread.start()
 
+    if(utils.checkClient() == False and client_ip == server_ip):
+        return redirect("admin/")
+    
     if(utils.checkClient() == False):
         return render(request, "http500.html", {"ip": client_ip}, status = 500)
     else:
@@ -72,6 +76,31 @@ def index(request):
                 return render(request, "index.html", {"client_ip": client_ip, "server_ip": server_ip, "port": port, "error": error, "download_files": download_files})
             else:
                 error = None
+                cursor.execute("SELECT * FROM main_fileunit WHERE File = ?", (file.name, ))
+                connection.commit()
+                data = cursor.fetchall()
+                cntFile = 0
+                ok_multiple_Files = True
+                while(ok_multiple_Files == True):
+                    for row in data:                        
+                        if(ok_multiple_Files == True):
+                            if(cntFile == 0 and row[2] == file.name):
+                                cntFile += 1
+                                file.name = os.path.splitext(file.name)[0] + f'{cntFile}' + os.path.splitext(file.name)[1]
+                            elif(cntFile > 0 and row[2] == file.name):
+                                print("second file")
+                                cntFile += 1
+                                file.name = os.path.splitext(file.name)[0][:-(math.floor(math.log10(cntFile)) + 1)] + f'{cntFile}' + os.path.splitext(file.name)[1]
+                                print(file.name)
+                            cursor.execute("SELECT * FROM main_fileunit WHERE File = ?", (file.name, ))
+                            connection.commit()
+                            data = cursor.fetchall()
+                            print(data)
+                            if(data == []):
+                                ok_multiple_Files = False
+                            break
+                        else:
+                            break
                 token = file.name + '_' + ip_to_send
                 token = Hasher.encode(token)
                 token = Chiper.encrypt(str(token))
@@ -104,3 +133,40 @@ def download_file(request, filename):
         response = HttpResponse(f.read(), content_type='application/octet-stream')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
+    
+def refresh(request):
+    Chiper = AESCipher
+    Hasher = MyHasher()
+    
+    client_ip = NetworkUtils().getLocalIP(request)
+    
+    connection = sqlite3.connect(settings.DATABASES['default']['NAME'])
+    cursor = connection.cursor()
+    
+    dataReceive = cursor.execute("SELECT * FROM main_fileunit WHERE IP = ?", (client_ip,)).fetchall()
+    
+    download_files = []
+    
+    for row in dataReceive:
+        encrypted_token = row[3]
+        file_name = row[2]
+        
+        decrypted_token = eval(Chiper.decrypt(encrypted_token))
+        
+        predicted_token = file_name + '_' + client_ip
+        if(MyHasher.verify(predicted_token, decrypted_token) == False):
+            logging.warning(f"Token verification failed for IP: {client_ip}. Denying access to the file. Deleting record from database.")
+            file_path = settings.MEDIA_URL + file_name
+            try:
+                os.remove(file_path)
+            except FileNotFoundError:   
+                pass
+            
+            cursor.execute("DELETE FROM main_fileunit WHERE File = ?", (file_name, ))
+            connection.commit()
+        else:
+            logging.info(f"Token verification succeeded for IP: {client_ip}. Sending file: {file_name}")
+            download_files.append(file_name)
+        
+    return render(request, "index.html", {"download_files": download_files})
+        

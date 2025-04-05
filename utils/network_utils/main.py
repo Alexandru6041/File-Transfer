@@ -132,11 +132,14 @@ class NetworkUtils(object):
                     ether = Ether(dst = "ff:ff:ff:ff:ff:ff")
                     packet = ether / arp_request
 
-                    response = srp1(packet, timeout=2, verbose=False)
+                    response = srp1(packet, timeout = settings.IP_CHECK_TIMEOUT, verbose = False)
                     
-                    if response:
-                        logging.info(f"IP: {IP} is on the server and running. Received response from {IP}: {response.psrc}")
+                    if response is not None: 
+                        logging.info(f"IP: {IP} is on the server and running. Received response from {IP}: {response}")
                         return True
+                    else:
+                        logging.warning(f"IP: {IP} is not on the network, please make sure the IP can communicate with the server, or the IP is not the server itself.")
+                        return False
                 else:
                     logging.warning(f"Client IP is not on the same network as server. Aborting all operations. Denying access. IP: {IP}")
                     return False
@@ -154,6 +157,7 @@ class NetworkUtils(object):
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM main_fileunit")
         rows = cursor.fetchall()
+        file_path = ""
         ok_warning = 0
         for row in rows:
             last_server_ip = row[4]
@@ -180,6 +184,7 @@ class NetworkUtils(object):
                 try:
                     file_name = row[2]
                     f = open(settings.MEDIA_URL + file_name, 'r')
+                    f.close()
                     
                 except OSError:
                     logging.warning(f"File {file_name} not found in media folder. Deleting record from database.")

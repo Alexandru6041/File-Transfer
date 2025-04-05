@@ -47,7 +47,13 @@ li
 li > a
 {
   text-decoration:none;
+}
+
+li > a
+{
   color: aliceblue;
+  max-width:200px;
+  word-wrap: break-word;
 }
 
 
@@ -61,14 +67,18 @@ h6 span{
 }
 
 
-.section{
+.section
+{
   position: relative;
   width: 100%;
   display: block;
 }
-.full-height{
+
+.full-height
+{
   min-height: 100vh; 
 }
+
 [type="checkbox"]:checked,
 [type="checkbox"]:not(:checked){
   position: absolute;
@@ -156,7 +166,22 @@ h6 span{
 }
 .card-back {
   transform: rotateY(180deg);
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height:100%;
+  padding-left:10px;
 }
+
+.notifications_container
+{
+  max-height: 250px;
+  max-width: 90%;
+  translate: 10px 0px;
+  overflow-y: auto;
+  background-color: #2a2b38;
+}
+
 .checkbox:checked ~ .card-3d-wrap .card-3d-wrapper {
   transform: rotateY(180deg);
 }
@@ -288,15 +313,25 @@ h6 span{
   color: #102770;
 }
 .btn:active,
-.btn:focus{  
+.btn:focus, .refresh_button:active, .refresh_button:focus{  
   background-color: #102770;
   color: #ffeba7;
 }
-.btn:hover{  
+.btn:hover, .refresh_button:hover{  
   background-color: #102770;
   color: #ffeba7;
 }
 
+.refresh_button > a{
+  text-decoration: none;
+  color: #102770;
+  background-color: #ffeba7;
+}
+
+.refresh_button > a:hover, a:focus{
+  text-decoration-color: #ffeba7;
+  background-color: #102770;
+}
 
 
 
