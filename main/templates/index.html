@@ -28,8 +28,8 @@
 													{% comment %} <i class="input-icon uil uil-at"></i> {% endcomment %}
 												</div>	
 												
-												<button type = "submit" <a href="#" class="btn mt-4">Send</a></button>
-												<button class = "btn mt-4"><a href = "{% url 'refresh' %}"> Refresh </a></button>
+												<button type = "submit" <a href="#" class="sub_btn btn mt-4">Send</a></button>
+												<a href = "{% url 'refresh' %}"> <button class = "btn mt-4 refresh_button"> Refresh </a> </button>
 
 												{% if error %}
 													<div class="alert alert-danger" role="alert">

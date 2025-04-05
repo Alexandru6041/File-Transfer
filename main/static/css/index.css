@@ -312,12 +312,12 @@ h6 span{
   background-color: #ffeba7;
   color: #102770;
 }
-.btn:active,
-.btn:focus, .refresh_button:active, .refresh_button:focus{  
+.sub_btn:active,
+.sub_btn:focus{  
   background-color: #102770;
   color: #ffeba7;
 }
-.btn:hover, .refresh_button:hover{  
+.sub_btn:hover{  
   background-color: #102770;
   color: #ffeba7;
 }
@@ -325,14 +325,18 @@ h6 span{
 .refresh_button > a{
   text-decoration: none;
   color: #102770;
+  /* padding-bottom: 8px; */
   background-color: #ffeba7;
 }
 
-.refresh_button > a:hover, a:focus{
+/* .refresh_button > a:hover, a:focus{
   text-decoration-color: #ffeba7;
+  text-emphasis-color: #ffeba7;
   background-color: #102770;
-}
-
+} */
+/* .refresh_button{
+  padding-top:10px;
+} */
 
 
 .logo {
