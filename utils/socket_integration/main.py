@@ -3,6 +3,7 @@ import socket
 import os
 import shutil
 import tqdm
+import logging
 from ..network_utils.main import NetworkUtils
 
 from django.conf import settings
@@ -22,6 +23,7 @@ class Sockets(object):
         print(f"[*] Listening as {self.RECEIVER_HOST}:{self._TRANSFER_PORT}")
         client_socket, address = self.s.accept()
         print(f"[+] {address} is connected.")
+        logging.info(f"{address} is connected.")
         received = client_socket.recv(self._BUFFER_SIZE).decode()
         filename, filesize = received.split(self._SEPARATOR)
         filename = os.path.basename(filename)

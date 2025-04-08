@@ -116,7 +116,6 @@ def index(request):
 
 def download_file(request, filename):
     file_path = os.path.join(settings.MEDIA_ROOT, filename)
-    print(file_path)
     if not os.path.exists(file_path):
         connection  = sqlite3.connect(settings.DATABASES['default']['NAME'])
         cursor = connection.cursor()
