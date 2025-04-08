@@ -2,13 +2,14 @@
 import socket
 import os
 import shutil
+import tqdm
 from ..network_utils.main import NetworkUtils
 
 from django.conf import settings
 
 class Sockets(object):
     def __init__(self):
-        self._BUFFER_SIZE = 1024 * 4
+        self._BUFFER_SIZE = 1024 * 100
         self._SEPARATOR = "<SEPARATOR>"
         self.RECEIVER_HOST = NetworkUtils.getServerIP()
         self._TRANSFER_PORT = settings.TRANSFER_PORT
@@ -45,6 +46,7 @@ class Sockets(object):
         self.s.connect((host, int(self._TRANSFER_PORT)))
         print(f"[*] Connected to {host} via port {self._TRANSFER_PORT}")
         self.s.send(f"{file}{self._SEPARATOR}{filesize}".encode())
+        progress = tqdm.tqdm(range(filesize), f"Sending {file.name}", unit = "B", unit_scale = True, unit_divisor = 1024)
         print(f"[*] Sending {file} to {host} via port {self._TRANSFER_PORT}")
         
         while True:
@@ -52,6 +54,7 @@ class Sockets(object):
             if not bytes_read:
                 break
             self.s.sendall(bytes_read)
+            progress.update(len(bytes_read))
             
         self.s.close()
         
