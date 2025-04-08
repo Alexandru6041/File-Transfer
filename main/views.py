@@ -47,8 +47,8 @@ def index(request):
         download_files = []
         
         for row in dataReceive:
-            encrypted_token = row[3]
-            file_name = row[2]
+            encrypted_token = row[2]
+            file_name = row[4]
             
             #Checking if the token is valid
             decrypted_token = eval(Chiper.decrypt(encrypted_token))
@@ -85,17 +85,15 @@ def index(request):
                     while(ok_multiple_Files == True):
                         for row in data:                        
                             if(ok_multiple_Files == True):
-                                if(cntFile == 0 and row[2] == file.name):
+                                if(cntFile == 0 and row[4] == file.name):
                                     cntFile += 1
                                     file.name = os.path.splitext(file.name)[0] + f'{cntFile}' + os.path.splitext(file.name)[1]
-                                elif(cntFile > 0 and row[2] == file.name):
+                                elif(cntFile > 0 and row[4] == file.name):
                                     cntFile += 1
                                     file.name = os.path.splitext(file.name)[0][:-(math.floor(math.log10(cntFile)) + 1)] + f'{cntFile}' + os.path.splitext(file.name)[1]
-                                    print(file.name)
                                 cursor.execute("SELECT * FROM main_fileunit WHERE File = ?", (file.name, ))
                                 connection.commit()
                                 data = cursor.fetchall()
-                                print(data)
                                 if(data == []):
                                     ok_multiple_Files = False
                                 break
@@ -118,7 +116,7 @@ def index(request):
 
 def download_file(request, filename):
     file_path = os.path.join(settings.MEDIA_ROOT, filename)
-
+    print(file_path)
     if not os.path.exists(file_path):
         connection  = sqlite3.connect(settings.DATABASES['default']['NAME'])
         cursor = connection.cursor()
@@ -148,8 +146,8 @@ def refresh(request):
     download_files = []
     
     for row in dataReceive:
-        encrypted_token = row[3]
-        file_name = row[2]
+        encrypted_token = row[2]
+        file_name = row[4]
         
         decrypted_token = eval(Chiper.decrypt(encrypted_token))
         

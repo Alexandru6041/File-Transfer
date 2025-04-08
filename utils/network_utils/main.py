@@ -160,7 +160,7 @@ class NetworkUtils(object):
         file_path = ""
         ok_warning = 0
         for row in rows:
-            last_server_ip = row[4]
+            last_server_ip = row[3]
             Server_Binary = _Op_Utils.ToBinary(self._ServerLocalIP)
             Subnet_Binary = _Op_Utils.ToBinary(self._Subnet)
             Client_Binary = _Op_Utils.ToBinary(last_server_ip)
@@ -172,7 +172,7 @@ class NetworkUtils(object):
                     logging.warning(f"Found Database junk from other sessions on other networks. Due to security reasons the database will delete all ongoing requests that are not from this network as well as the media folder contents that are associated to the previous mentioned requests. Media folder path: {settings.MEDIA_ROOT}")
                     ok_warning = 1
 
-                file_name = row[2]
+                file_name = row[4]
                 file_path = settings.MEDIA_ROOT + file_name
                 try:
                     os.remove(file_path)
@@ -180,16 +180,6 @@ class NetworkUtils(object):
                     pass
                 cursor.execute("DELETE FROM main_fileunit WHERE server_ip = ?", (last_server_ip,))
                 connection.commit()
-            else:
-                try:
-                    file_name = row[2]
-                    f = open(settings.MEDIA_ROOT + file_name, 'r')
-                    f.close()
-                    
-                except OSError:
-                    logging.warning(f"File {file_name} not found in media folder. Deleting record from database.")
-                    cursor.execute("DELETE FROM main_fileunit WHERE File = ?", (file_name, ))
-                    connection.commit()
                     
         cursor.close()  
         connection.close()
