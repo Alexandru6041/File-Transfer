@@ -128,7 +128,7 @@ def download_file(request, filename):
 
     with open(file_path, 'rb') as f:
         response = HttpResponse(f.read(), content_type='application/octet-stream')
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
         return response
     
 def refresh(request):
@@ -166,4 +166,3 @@ def refresh(request):
             download_files.append(file_name)
         
     return render(request, "index.html", {"download_files": download_files})
-        

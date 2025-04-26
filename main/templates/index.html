@@ -48,7 +48,7 @@
 											<div class = "notifications_container">
 												<ul class = "notifications">
 													{% for file_unit in download_files %}
-														<li class = "notification"> <a class = "link_notification" href = "{% url 'download_file' file_unit %}"> {{ file_unit }} </a></li>
+														<li class = "notification"> <a class = "link_notification" href = "{% url 'download_file' file_unit %}" target = "_blank"> {{ file_unit }} </a></li>
 													{% endfor %}
 												</ul>
 											</div>
