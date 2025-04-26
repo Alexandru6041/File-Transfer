@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import django_extensions
 from os.path import join
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     
     #Third-party
     'main.apps.MainConfig',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
