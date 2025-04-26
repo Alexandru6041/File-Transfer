@@ -173,7 +173,7 @@ class NetworkUtils(object):
                     ok_warning = 1
 
                 file_name = row[4]
-                file_path = settings.MEDIA_ROOT + file_name
+                file_path = os.path.join(settings.MEDIA_ROOT, file_name)
                 try:
                     os.remove(file_path)
                 except OSError:
