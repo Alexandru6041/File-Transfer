@@ -14,8 +14,8 @@ class MyHasher():
     
     SALT_SIZE = 16
     KEY_SIZE = 32
-    ITERATIONS = 512
-    MEMORY = 512
+    ITERATIONS = 32
+    MEMORY = 1310720
 
     def encode(self, string, salt = None, *args, **kwargs):
         salt1 = secrets.token_bytes(MyHasher.SALT_SIZE)
