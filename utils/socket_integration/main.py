@@ -62,4 +62,3 @@ class Sockets(object):
         
         print(f"[+] File sent: {file} to {host} via port {self._TRANSFER_PORT}")
         
-        # Sockets().send(file, host)

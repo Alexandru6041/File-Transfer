@@ -9,8 +9,6 @@ import base64
 import os
 
 class MyHasher():
-
-    algorithm = 'myhasher'
     
     SALT_SIZE = 16
     KEY_SIZE = 32
